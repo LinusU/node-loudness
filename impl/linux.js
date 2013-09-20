@@ -33,7 +33,7 @@ var getInfo = function (cb) {
       } else {
         cb(null, {
           volume: parseInt(res[1], 10),
-          muted: (res[2] == 'on')
+          muted: (res[2] == 'off')
         });
       }
     }
