@@ -21,21 +21,49 @@ var amixer = function (args, cb) {
 
 };
 
+var reDefaultDevice = /Simple mixer control \'([a-z0-9 -]+)\',[0-9]+/i;
+var defaultDeviceCache = null;
+var defaultDevice = function(cb) {
+  if(defaultDeviceCache === null) {
+    amixer([], function (err, data) {
+      if(err) {
+        cb(err);
+      } else {
+        var res = reDefaultDevice.exec(data);
+        if(res === null) {
+          cb(new Error('Alsa Mixer Error: failed to parse output'));
+        } else {
+          defaultDeviceCache = res[1];
+          cb(null, defaultDeviceCache);
+        }
+      }
+    });
+  } else {
+    cb(null, defaultDeviceCache);
+  }
+};
+
 var reInfo = /[a-z][a-z ]*\: Playback [0-9-]+ \[([0-9]+)\%\] [[0-9\.-]+dB\] \[(on|off)\]/i;
 var getInfo = function (cb) {
-  amixer(['get', 'PCM'], function (err, data) {
+  defaultDevice(function (err, dev) {
     if(err) {
       cb(err);
     } else {
-      var res = reInfo.exec(data);
-      if(res === null) {
-        cb(new Error('Alsa Mixer Error: failed to parse output'));
-      } else {
-        cb(null, {
-          volume: parseInt(res[1], 10),
-          muted: (res[2] == 'off')
-        });
-      }
+      amixer(['get', dev], function (err, data) {
+        if(err) {
+          cb(err);
+        } else {
+          var res = reInfo.exec(data);
+          if(res === null) {
+            cb(new Error('Alsa Mixer Error: failed to parse output'));
+          } else {
+            cb(null, {
+              volume: parseInt(res[1], 10),
+              muted: (res[2] == 'off')
+            });
+          }
+        }
+      });
     }
   });
 };
@@ -51,8 +79,14 @@ module.exports.getVolume = function (cb) {
 };
 
 module.exports.setVolume = function (val, cb) {
-  amixer(['set', 'PCM', val + '%'], function (err) {
-    cb(err);
+  defaultDevice(function (err, dev) {
+    if(err) {
+      cb(err);
+    } else {
+      amixer(['set', dev, val + '%'], function (err) {
+        cb(err);
+      });
+    }
   });
 };
 
