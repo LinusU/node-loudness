@@ -43,7 +43,7 @@ var defaultDevice = function(cb) {
   }
 };
 
-var reInfo = /[a-z][a-z ]*\: Playback [0-9-]+ \[([0-9]+)\%\] [[0-9\.-]+dB\] \[(on|off)\]/i;
+var reInfo = /[a-z][a-z ]*\: Playback [0-9-]+ \[([0-9]+)\%\] (?:[[0-9\.-]+dB\] )?\[(on|off)\]/i;
 var getInfo = function (cb) {
   defaultDevice(function (err, dev) {
     if(err) {
