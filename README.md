@@ -29,3 +29,22 @@ loudness.getMuted(function (err, mute) {
 ## OS Support
 
 Currently Mac OS X and Linux (ALSA) is supported, please send a pull requests if you are using another setup.
+
+
+## Usage by http requets
+
+Execute app by:
+``` 
+node app.js
+```
+
+Make petitions to configure your volume level like:
+``` 
+http://localhost:8080/set/10 
+```
+This sets to 10% the volume level.
+
+To toggle mute state, you make a petition like:
+```
+http://localhost:8080/toggle
+```
