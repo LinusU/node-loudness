@@ -101,7 +101,7 @@ module.exports.getMuted = function (cb) {
 };
 
 module.exports.setMuted = function (val, cb) {
-  amixer(['set', 'PCM', (val?'mute':'unmute')], function (err) {
+  amixer(['set', '-D', 'pulse', 'Master', (val?'mute':'unmute')], function (err) {
     cb(err);
   });
 };

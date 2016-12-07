@@ -28,4 +28,4 @@ loudness.getMuted(function (err, mute) {
 
 ## OS Support
 
-Currently Mac OS X and Linux (ALSA) is supported, please send a pull requests if you are using another setup.
+Currently Mac OS X and Linux (ALSA) is supported, please send a pull request if you are using another setup.
