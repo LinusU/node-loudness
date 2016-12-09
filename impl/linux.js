@@ -101,7 +101,15 @@ module.exports.getMuted = function (cb) {
 };
 
 module.exports.setMuted = function (val, cb) {
-  amixer(['set', '-D', 'pulse', 'Master', (val?'mute':'unmute')], function (err) {
-    cb(err);
+  amixer(['set', 'Master', (val?'mute':'unmute')], function (err) {
+    if(err) return cb(err);
+
+    amixer(['set', '-D', 'pulse', 'Master', (val?'mute':'unmute')], function (err) {
+      // Ignore error if pulseaudio is not running 
+      if(err && err.message.includes("Mixer attach pulse error: Connection refused"))
+        cb();
+      else
+        cb(err);
+    });
   });
 };
