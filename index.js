@@ -9,6 +9,9 @@ switch(os.type()) {
   case 'Linux':
     impl = require('./impl/linux');
     break;
+  case 'Windows_NT':
+    impl = require('./impl/windows')
+    break;
   default:
     throw new Error('Your OS is currently not supported by node-loudness.');
 }
