@@ -45,7 +45,7 @@ var getVolumeInfo = function(done) {
 var getVolume = function(done) {
 	done = done || function () {};
 
-	getVolumeInfo((err, info) => {
+	getVolumeInfo(function(err, info) {
 		if (err) return done(err);
 
 		return done(null, info.volume);
@@ -66,7 +66,7 @@ var setVolume = function(val, done) {
 var getMuted = function(done) {
 	done = done || function () {};
 
-	getVolumeInfo((err, info) => {
+	getVolumeInfo(function(err, info) {
 		if (err) return done(err);
 
 		return done(null, info.isMuted);
