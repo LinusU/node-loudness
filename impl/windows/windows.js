@@ -26,13 +26,29 @@ var runProgram = function(args, done) {
 	});
 };
 
+var getVolumeInfo = function(done) {
+	done = done || function () {};
+
+	runProgram('', function(err, strArgs) {
+		if (err) return done(err);
+
+		const args = strArgs.split(' ');
+		const info = {
+			volume: parseInt(args[0]),
+			isMuted: parseInt(args[1]) ? true : false
+		};
+
+		return done(null, info);
+	});
+};
+
 var getVolume = function(done) {
 	done = done || function () {};
 
-	runProgram('', function(err, vol) {
+	getVolumeInfo((err, info) => {
 		if (err) return done(err);
 
-		return done(null, parseInt(vol));
+		return done(null, info.volume);
 	});
 };
 
@@ -50,15 +66,15 @@ var setVolume = function(val, done) {
 var getMuted = function(done) {
 	done = done || function () {};
 
-	getVolume(function(err, volume) {
+	getVolumeInfo((err, info) => {
 		if (err) return done(err);
 
-		return done(null, volume === 0);
+		return done(null, info.isMuted);
 	});
 };
 
 var setMuted = function(val, done) {
-	val = val ? '0' : '100';
+	val = val ? 'mute' : 'unmute';
 	done = done || function () {};
 
 	runProgram(val, function(err) {
