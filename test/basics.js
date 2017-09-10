@@ -55,7 +55,7 @@ describe('loudness', function () {
     }, function () {
       done();
     }); 
-  });
+  }).timeout(5000);
 
   it('should mute the volume', function (done) {
     loudness.setMuted(true, function (err) {
