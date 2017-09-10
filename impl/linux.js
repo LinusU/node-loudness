@@ -1,22 +1,39 @@
 
-var spawn = require('child_process').spawn;
+var childProcess = require('child_process');
+
+var isUbuntu = function (cb) {
+  childProcess.exec('uname -a', (err, stdout, stderr) => {
+    if (err) return cb(err);
+
+    return cb(null, stdout.toLowerCase().indexOf('ubuntu') > -1);
+  });
+};
 
 var amixer = function (args, cb) {
-
   var ret = '';
   var err = null;
-  var p = spawn('amixer', args);
+  
+  isUbuntu((err, ubuntu) => {
+    if (err) return cb(err);
 
-  p.stdout.on('data', function (data) {
-    ret += data;
-  });
+    if (ubuntu) {
+      args.unshift('pulse');
+      args.unshift('-D');
+    }
+    
+    var p = childProcess.spawn('amixer', args);
+    p.stdout.on('data', function (data) {
+      ret += data;
+    });
+  
+    p.stderr.on('data', function (data) {
+      err = new Error('Alsa Mixer Error: ' + data);
+    });
+  
+    p.on('close', function () {
+      cb(err, ret.trim());
+    });
 
-  p.stderr.on('data', function (data) {
-    err = new Error('Alsa Mixer Error: ' + data);
-  });
-
-  p.on('close', function () {
-    cb(err, ret.trim());
   });
 
 };
