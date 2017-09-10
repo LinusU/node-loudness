@@ -4,10 +4,10 @@ var impl = null;
 
 switch(os.type()) {
   case 'Darwin':
-    impl = require('./impl/darwin');
+    impl = require('./impl/darwin.js');
     break;
   case 'Linux':
-    impl = require('./impl/linux');
+    impl = require('./impl/linux.js');
     break;
   case 'Windows_NT':
     impl = require('./impl/windows')
