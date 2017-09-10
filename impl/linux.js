@@ -101,7 +101,13 @@ module.exports.getMuted = function (cb) {
 };
 
 module.exports.setMuted = function (val, cb) {
-  amixer(['set', 'PCM', (val?'mute':'unmute')], function (err) {
-    cb(err);
+  defaultDevice(function (err, dev) {
+    if (err) {
+      cb(err);
+    } else {
+      amixer(['set', dev, (val?'mute':'unmute')], function (err) {
+        cb(err);
+      });
+    }
   });
 };
