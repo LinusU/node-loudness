@@ -4,10 +4,13 @@ var impl = null;
 
 switch(os.type()) {
   case 'Darwin':
-    impl = require('./impl/darwin.js');
+    impl = require('./impl/darwin');
     break;
   case 'Linux':
-    impl = require('./impl/linux.js');
+    impl = require('./impl/linux');
+    break;
+  case 'Windows_NT':
+    impl = require('./impl/windows')
     break;
   default:
     throw new Error('Your OS is currently not supported by node-loudness.');
