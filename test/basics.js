@@ -37,22 +37,27 @@ describe('loudness', function () {
   });
 
   it('should set and get the volume', function (done) {
-    loudness.setVolume(15, function (err) {
-
-      assert.ifError(err);
-
-      loudness.getVolume(function (err, vol) {
-
+    // test all options - from 0% to 100%
+    var indexes = Array.apply(null, {length: 101}).map(Number.call, Number);
+    async.eachSeries(indexes, function (index, next) {
+      loudness.setVolume(index, function (err) {
+  
         assert.ifError(err);
-        assert.equal(vol, 15);
-
-        done();
+  
+        loudness.getVolume(function (err, vol) {
+  
+          assert.ifError(err);
+          assert.equal(vol, index);
+          
+          next();
+        });
       });
+    }, function () {
+      done();
+    }); 
+  }).timeout(5000);
 
-    });
-  });
-
-  it('should set and get the mute state', function (done) {
+  it('should mute the volume', function (done) {
     loudness.setMuted(true, function (err) {
 
       assert.ifError(err);
@@ -61,6 +66,22 @@ describe('loudness', function () {
 
         assert.ifError(err);
         assert.equal(mute, true);
+
+        done();
+      });
+
+    });
+  });
+
+  it('should unmute the volume', function (done) {
+    loudness.setMuted(false, function (err) {
+
+      assert.ifError(err);
+
+      loudness.getMuted(function (err, mute) {
+
+        assert.ifError(err);
+        assert.equal(mute, false);
 
         done();
       });
