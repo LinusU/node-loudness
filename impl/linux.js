@@ -29,6 +29,7 @@ var defaultDevice = function(cb) {
       if(err) {
         cb(err);
       } else {
+        console.log('DEFAULT DEVICE DATA', data)
         var res = reDefaultDevice.exec(data);
         if(res === null) {
           cb(new Error('Alsa Mixer Error: failed to parse output'));
@@ -53,6 +54,7 @@ var getInfo = function (cb) {
         if(err) {
           cb(err);
         } else {
+          console.log('GET INFO DATA', data)
           var res = reInfo.exec(data);
           if(res === null) {
             cb(new Error('Alsa Mixer Error: failed to parse output'));
