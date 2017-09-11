@@ -1,0 +1,34 @@
+language: node_js
+sudo: required
+node_js:
+  - '6'
+  - '4'
+  - '0.12'
+  - '0.10'
+before_install:
+  - sudo usermod -a -G audio travis
+  - sudo apt-get install -y libasound2-dev alsa-utils alsa-oss
+
+  - echo 'pcm.!default {'  >  /home/travis/.asoundrc
+  - echo '   type hw'      >> /home/travis/.asoundrc
+  - echo '   card 0'       >> /home/travis/.asoundrc
+  - echo '}'               >> /home/travis/.asoundrc
+  - echo ''                >> /home/travis/.asoundrc
+  - echo 'ctl.!default {'  >> /home/travis/.asoundrc
+  - echo '   type hw'      >> /home/travis/.asoundrc
+  - echo '   card 0'       >> /home/travis/.asoundrc
+  - echo '}'               >> /home/travis/.asoundrc
+
+  - chmod go+r /home/travis/.asoundrc
+
+  - echo '# OSS/Free portion - card 1'              | sudo tee -a /etc/modules.conf
+  - echo 'alias sound-slot-0 snd-card-0'            | sudo tee -a /etc/modules.conf
+  - echo 'alias sound-service-0-0 snd-mixer-oss'    | sudo tee -a /etc/modules.conf
+  - echo 'alias sound-service-0-1 snd-seq-oss'      | sudo tee -a /etc/modules.conf
+  - echo 'alias sound-service-0-3 snd-pcm-oss'      | sudo tee -a /etc/modules.conf
+  - echo 'alias sound-service-0-8 snd-seq-oss'      | sudo tee -a /etc/modules.conf
+  - echo 'alias sound-service-0-12 snd-pcm-oss'     | sudo tee -a /etc/modules.conf
+
+  - sudo modprobe snd-dummy
+script:
+  - sudo $(which node) node_modules/.bin/_mocha
