@@ -1,92 +1,59 @@
-var spawn = require('child_process').spawn;
-var path = require('path');
+const { execFile } = require('child_process');
+const path = require('path');
 
-var executable = path.join(__dirname, 'adjust_get_current_system_volume_vista_plus.exe');
+const executable = path.join(__dirname, 'adjust_get_current_system_volume_vista_plus.exe');
 
-var runProgram = function(args, done) {
+function runProgram(args, done) {
 	args = args === '' ? [] : args.toString().split(' ');
 	done = done || function () {};
 
-	var ret = '';
-	var err = null;
-	var p = spawn(executable, args);
-
-	p.stdout.on('data', function (data) {
-		ret += data;
-	});
-
-	p.stderr.on('data', function (data) {
-		err = new Error('Windows Script Error: ' + data);
-	});
-
-	p.on('close', function () {
-		if (err) return done(err);
-
-		return done(null, ret.trim());
+	return new Promise((resolve, reject) => {
+		execFile(executable, args, (err, stdout, stderr) => {
+			if (err) {
+				const err = new Error('Windows Script Error:', error);
+				reject(err);
+			} else if (stderr) {
+				const err = new Error('Windows Script Error:', error);
+				reject(err);
+			} else {
+				resolve(stdout.trim());
+			}
+		});
 	});
 };
 
-var getVolumeInfo = function(done) {
-	done = done || function () {};
-
-	runProgram('', function(err, strArgs) {
-		if (err) return done(err);
-
-		const args = strArgs.split(' ');
-		const info = {
-			volume: parseInt(args[0]),
-			isMuted: parseInt(args[1]) ? true : false
-		};
-
-		return done(null, info);
-	});
+async function getVolumeInfo() {
+	const result = await runProgram('');
+	const args = result.split(' ');
+	return {
+		volume: parseInt(args[0]),
+		isMuted: parseInt(args[1]) ? true : false,
+	}
 };
 
-var getVolume = function(done) {
-	done = done || function () {};
+async function getVolume() {
+	const info = await getVolumeInfo();
+	return info.volume;
+}
 
-	getVolumeInfo(function(err, info) {
-		if (err) return done(err);
-
-		return done(null, info.volume);
-	});
-};
-
-var setVolume = function(val, done) {
+function setVolume(val) {
 	val = val || 0;
-	done = done || function () {};
+	return runProgram(val);
+}
 
-	runProgram(val, function(err) {
-		if (err) return done(err);
+async function getMuted() {
+	const info = await getVolumeInfo();
+	return info.isMuted;
+}
 
-		return done(null);
-	});
-};
-
-var getMuted = function(done) {
-	done = done || function () {};
-
-	getVolumeInfo(function(err, info) {
-		if (err) return done(err);
-
-		return done(null, info.isMuted);
-	});
-};
-
-var setMuted = function(val, done) {
+function setMuted(val) {
 	val = val ? 'mute' : 'unmute';
-	done = done || function () {};
-
-	runProgram(val, function(err) {
-		if (err) return done(err);
-
-		return done(null);
-	});
-};
+	return runProgram(val);
+}
 
 module.exports = {
-	getVolume: getVolume,
-	setVolume: setVolume,
-	getMuted: getMuted,
-	setMuted: setMuted
+	getVolume,
+	setVolume,
+	getMuted,
+	setMuted,
 };

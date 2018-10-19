@@ -1,54 +1,42 @@
+const { exec } = require('child_process');
 
-var spawn = require('child_process').spawn;
+function osascript(cmd) {
+    return new Promise((resolve, reject) => {
+        exec(`osascript -e '${cmd}'`, (err, stdout, stderr) => {
+            if (err) {
+                const error = new Error('Apple Script Error:', err);
+                reject(error);
+            } else if (stderr) {
+                const error = new Error('Apple Script Error:', stderr);
+                reject(error);
+            } else {
+                resolve(stdout.trim());
+            }
+        });
+    });
+}
 
-var osascript = function (cmd, cb) {
+async function getVolume() {
+    const vol = await osascript('output volume of (get volume settings)');
+    return parseInt(vol, 10);
+}
 
-  var ret = '';
-  var err = null;
-  var p = spawn('osascript', ['-e', cmd]);
+function setVolume(val) {
+    return osascript(`set volume output volume ${val}`);
+}
 
-  p.stdout.on('data', function (data) {
-    ret += data;
-  });
+async function getMuted() {
+    const mute = await osascript('output muted of (get volume settings)');
+    return (mute === 'true');
+}
 
-  p.stderr.on('data', function (data) {
-    err = new Error('Apple Script Error: ' + data);
-  });
+function setMuted(val) {
+    return osascript(`set volume ${(val ? 'with' : 'without')} output muted`);
+}
 
-  p.on('close', function () {
-    cb(err, ret.trim());
-  });
-
-};
-
-module.exports.getVolume = function (cb) {
-  osascript('output volume of (get volume settings)', function (err, vol) {
-    if(err) {
-      cb(err);
-    } else {
-      cb(null, parseInt(vol, 10));
-    }
-  });
-};
-
-module.exports.setVolume = function (val, cb) {
-  osascript('set volume output volume ' + val, function (err) {
-    cb(err);
-  });
-};
-
-module.exports.getMuted = function (cb) {
-  osascript('output muted of (get volume settings)', function (err, mute) {
-    if(err) {
-      cb(err);
-    } else {
-      cb(null, (mute === 'true'));
-    }
-  });
-};
-
-module.exports.setMuted = function (val, cb) {
-  osascript('set volume ' + (val?'with':'without') + ' output muted', function (err) {
-    cb(err);
-  });
+module.exports = {
+    getVolume,
+    setVolume,
+    getMuted,
+    setMuted,
 };
