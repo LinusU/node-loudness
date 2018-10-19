@@ -1,71 +1,27 @@
+const loudness = require('../');
+const assert = require('assert');
 
-var loudness = require('../');
+describe('loudness', () => {
 
-var async = require('async');
-var assert = require('assert');
-
-describe('loudness', function () {
-
-  var systemVolume, isMuted;
-
-  before(function (done) {
-    async.parallel([
-      function (cb) {
-        loudness.getVolume(function (err, vol) {
-          if (err) { return cb(err); }
-
-          systemVolume = vol;
-          cb(null);
-        });
-      },
-      function (cb) {
-        loudness.getMuted(function (err, mute) {
-          if (err) { return cb(err); }
-
-          isMuted = mute;
-          cb(null);
-        });
-      }
-    ], done);
+  it('should set and get the volume', async () => {
+    try {
+      await loudness.setVolume(15);
+      const vol = await loudness.getVolume();
+      return assert.equal(vol, 15);
+    } catch (e) {
+      console.log(e);
+      return assert.ifError(e);
+    }
   });
 
-  after(function (done) {
-    async.parallel([
-      loudness.setVolume.bind(loudness, systemVolume),
-      loudness.setMuted.bind(loudness, isMuted)
-    ], done);
-  });
-
-  it('should set and get the volume', function (done) {
-    loudness.setVolume(15, function (err) {
-
-      assert.ifError(err);
-
-      loudness.getVolume(function (err, vol) {
-
-        assert.ifError(err);
-        assert.equal(vol, 15);
-
-        done();
-      });
-
-    });
-  });
-
-  it('should set and get the mute state', function (done) {
-    loudness.setMuted(true, function (err) {
-
-      assert.ifError(err);
-
-      loudness.getMuted(function (err, mute) {
-
-        assert.ifError(err);
-        assert.equal(mute, true);
-
-        done();
-      });
-
-    });
+  it('should set and get the mute state', async () => {
+    try {
+      await loudness.setMuted(true);
+      const mute = await loudness.getMuted();
+      return assert.equal(mute, true);
+    } catch(e) {
+      return assert.ifError(err);
+    }
   });
 
 });
