@@ -1,71 +1,64 @@
+/* eslint-env mocha */
 
-var loudness = require('../');
+var loudness = require('../')
 
-var async = require('async');
-var assert = require('assert');
+var async = require('async')
+var assert = require('assert')
 
 describe('loudness', function () {
-
-  var systemVolume, isMuted;
+  var systemVolume, isMuted
 
   before(function (done) {
     async.parallel([
       function (cb) {
         loudness.getVolume(function (err, vol) {
-          if (err) { return cb(err); }
+          if (err) { return cb(err) }
 
-          systemVolume = vol;
-          cb(null);
-        });
+          systemVolume = vol
+          cb(null)
+        })
       },
       function (cb) {
         loudness.getMuted(function (err, mute) {
-          if (err) { return cb(err); }
+          if (err) { return cb(err) }
 
-          isMuted = mute;
-          cb(null);
-        });
+          isMuted = mute
+          cb(null)
+        })
       }
-    ], done);
-  });
+    ], done)
+  })
 
   after(function (done) {
     async.parallel([
       loudness.setVolume.bind(loudness, systemVolume),
       loudness.setMuted.bind(loudness, isMuted)
-    ], done);
-  });
+    ], done)
+  })
 
   it('should set and get the volume', function (done) {
     loudness.setVolume(15, function (err) {
-
-      assert.ifError(err);
+      assert.ifError(err)
 
       loudness.getVolume(function (err, vol) {
+        assert.ifError(err)
+        assert.strictEqual(vol, 15)
 
-        assert.ifError(err);
-        assert.equal(vol, 15);
-
-        done();
-      });
-
-    });
-  });
+        done()
+      })
+    })
+  })
 
   it('should set and get the mute state', function (done) {
     loudness.setMuted(true, function (err) {
-
-      assert.ifError(err);
+      assert.ifError(err)
 
       loudness.getMuted(function (err, mute) {
+        assert.ifError(err)
+        assert.strictEqual(mute, true)
 
-        assert.ifError(err);
-        assert.equal(mute, true);
-
-        done();
-      });
-
-    });
-  });
-
-});
+        done()
+      })
+    })
+  })
+})
