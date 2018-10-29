@@ -1,6 +1,6 @@
 {
   "name": "loudness",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "license": "MIT",
   "repository": "LinusU/node-loudness",
   "scripts": {
