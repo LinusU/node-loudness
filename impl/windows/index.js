@@ -1,15 +1,15 @@
-var spawn = require('child_process').spawn
-var path = require('path')
+const { spawn } = require('child_process')
+const path = require('path')
 
-var executable = path.join(__dirname, 'adjust_get_current_system_volume_vista_plus.exe')
+const executable = path.join(__dirname, 'adjust_get_current_system_volume_vista_plus.exe')
 
-var runProgram = function (args, done) {
+const runProgram = function (args, done) {
   args = args === '' ? [] : args.toString().split(' ')
   done = done || function () {}
 
-  var ret = ''
-  var err = null
-  var p = spawn(executable, args)
+  let ret = ''
+  let err = null
+  const p = spawn(executable, args)
 
   p.stdout.on('data', function (data) {
     ret += data
@@ -26,7 +26,7 @@ var runProgram = function (args, done) {
   })
 }
 
-var getVolumeInfo = function (done) {
+const getVolumeInfo = function (done) {
   done = done || function () {}
 
   runProgram('', function (err, strArgs) {
@@ -42,7 +42,7 @@ var getVolumeInfo = function (done) {
   })
 }
 
-var getVolume = function (done) {
+module.exports.getVolume = function (done) {
   done = done || function () {}
 
   getVolumeInfo(function (err, info) {
@@ -52,7 +52,7 @@ var getVolume = function (done) {
   })
 }
 
-var setVolume = function (val, done) {
+module.exports.setVolume = function (val, done) {
   val = val || 0
   done = done || function () {}
 
@@ -63,7 +63,7 @@ var setVolume = function (val, done) {
   })
 }
 
-var getMuted = function (done) {
+module.exports.getMuted = function (done) {
   done = done || function () {}
 
   getVolumeInfo(function (err, info) {
@@ -73,7 +73,7 @@ var getMuted = function (done) {
   })
 }
 
-var setMuted = function (val, done) {
+module.exports.setMuted = function (val, done) {
   val = val ? 'mute' : 'unmute'
   done = done || function () {}
 
@@ -82,11 +82,4 @@ var setMuted = function (val, done) {
 
     return done(null)
   })
-}
-
-module.exports = {
-  getVolume: getVolume,
-  setVolume: setVolume,
-  getMuted: getMuted,
-  setMuted: setMuted
 }

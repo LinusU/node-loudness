@@ -1,12 +1,12 @@
 /* eslint-env mocha */
 
-var loudness = require('../')
+const loudness = require('../')
 
-var async = require('async')
-var assert = require('assert')
+const async = require('async')
+const assert = require('assert')
 
 describe('loudness', function () {
-  var systemVolume, isMuted
+  let systemVolume, isMuted
 
   before(function (done) {
     async.parallel([

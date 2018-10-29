@@ -1,5 +1,5 @@
-var os = require('os')
-var impl = null
+const os = require('os')
+let impl = null
 
 switch (os.type()) {
   case 'Darwin':
@@ -16,16 +16,16 @@ switch (os.type()) {
 }
 
 module.exports = {
-  setVolume: function (volume, cb) {
+  setVolume (volume, cb) {
     impl.setVolume(volume, cb)
   },
-  getVolume: function (cb) {
+  getVolume (cb) {
     impl.getVolume(cb)
   },
-  setMuted: function (muted, cb) {
+  setMuted (muted, cb) {
     impl.setMuted(muted, cb)
   },
-  getMuted: function (cb) {
+  getMuted (cb) {
     impl.getMuted(cb)
   }
 }

@@ -1,9 +1,9 @@
-var spawn = require('child_process').spawn
+const { spawn } = require('child_process')
 
-var amixer = function (args, cb) {
-  var ret = ''
-  var err = null
-  var p = spawn('amixer', args)
+const amixer = function (args, cb) {
+  let ret = ''
+  let err = null
+  const p = spawn('amixer', args)
 
   p.stdout.on('data', function (data) {
     ret += data
@@ -18,15 +18,15 @@ var amixer = function (args, cb) {
   })
 }
 
-var reDefaultDevice = /Simple mixer control '([a-z0-9 -]+)',[0-9]+/i
-var defaultDeviceCache = null
-var defaultDevice = function (cb) {
+const reDefaultDevice = /Simple mixer control '([a-z0-9 -]+)',[0-9]+/i
+let defaultDeviceCache = null
+const defaultDevice = function (cb) {
   if (defaultDeviceCache === null) {
     amixer([], function (err, data) {
       if (err) {
         cb(err)
       } else {
-        var res = reDefaultDevice.exec(data)
+        let res = reDefaultDevice.exec(data)
         if (res === null) {
           cb(new Error('Alsa Mixer Error: failed to parse output'))
         } else {
@@ -40,8 +40,8 @@ var defaultDevice = function (cb) {
   }
 }
 
-var reInfo = /[a-z][a-z ]*: Playback [0-9-]+ \[([0-9]+)%\] (?:[[0-9.-]+dB\] )?\[(on|off)\]/i
-var getInfo = function (cb) {
+const reInfo = /[a-z][a-z ]*: Playback [0-9-]+ \[([0-9]+)%\] (?:[[0-9.-]+dB\] )?\[(on|off)\]/i
+const getInfo = function (cb) {
   defaultDevice(function (err, dev) {
     if (err) {
       cb(err)
@@ -50,7 +50,7 @@ var getInfo = function (cb) {
         if (err) {
           cb(err)
         } else {
-          var res = reInfo.exec(data)
+          let res = reInfo.exec(data)
           if (res === null) {
             cb(new Error('Alsa Mixer Error: failed to parse output'))
           } else {

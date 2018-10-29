@@ -1,9 +1,9 @@
-var spawn = require('child_process').spawn
+const { spawn } = require('child_process')
 
-var osascript = function (cmd, cb) {
-  var ret = ''
-  var err = null
-  var p = spawn('osascript', ['-e', cmd])
+const osascript = function (cmd, cb) {
+  let ret = ''
+  let err = null
+  const p = spawn('osascript', ['-e', cmd])
 
   p.stdout.on('data', function (data) {
     ret += data
