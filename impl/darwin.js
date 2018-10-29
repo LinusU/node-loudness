@@ -1,51 +1,21 @@
-const { spawn } = require('child_process')
+const execa = require('execa')
 
-const osascript = function (cmd, cb) {
-  let ret = ''
-  let err = null
-  const p = spawn('osascript', ['-e', cmd])
-
-  p.stdout.on('data', function (data) {
-    ret += data
-  })
-
-  p.stderr.on('data', function (data) {
-    err = new Error('Apple Script Error: ' + data)
-  })
-
-  p.on('close', function () {
-    cb(err, ret.trim())
-  })
+function osascript (cmd) {
+  return execa.stdout('osascript', ['-e', cmd], { preferLocal: false })
 }
 
-module.exports.getVolume = function (cb) {
-  osascript('output volume of (get volume settings)', function (err, vol) {
-    if (err) {
-      cb(err)
-    } else {
-      cb(null, parseInt(vol, 10))
-    }
-  })
+exports.getVolume = function () {
+  return osascript('output volume of (get volume settings)').then(vol => parseInt(vol, 10))
 }
 
-module.exports.setVolume = function (val, cb) {
-  osascript('set volume output volume ' + val, function (err) {
-    cb(err)
-  })
+exports.setVolume = function (val) {
+  return osascript('set volume output volume ' + val).then(() => undefined)
 }
 
-module.exports.getMuted = function (cb) {
-  osascript('output muted of (get volume settings)', function (err, mute) {
-    if (err) {
-      cb(err)
-    } else {
-      cb(null, (mute === 'true'))
-    }
-  })
+exports.getMuted = function () {
+  return osascript('output muted of (get volume settings)').then(mute => (mute === 'true'))
 }
 
-module.exports.setMuted = function (val, cb) {
-  osascript('set volume ' + (val ? 'with' : 'without') + ' output muted', function (err) {
-    cb(err)
-  })
+exports.setMuted = function (val) {
+  return osascript('set volume ' + (val ? 'with' : 'without') + ' output muted').then(() => undefined)
 }

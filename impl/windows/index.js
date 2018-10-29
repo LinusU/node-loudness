@@ -1,85 +1,32 @@
-const { spawn } = require('child_process')
+const execa = require('execa')
 const path = require('path')
 
-const executable = path.join(__dirname, 'adjust_get_current_system_volume_vista_plus.exe')
+const executablePath = path.join(__dirname, 'adjust_get_current_system_volume_vista_plus.exe')
 
-const runProgram = function (args, done) {
-  args = args === '' ? [] : args.toString().split(' ')
-  done = done || function () {}
+function runProgram (...args) {
+  return execa.stdout(executablePath, args)
+}
 
-  let ret = ''
-  let err = null
-  const p = spawn(executable, args)
+function getVolumeInfo () {
+  return runProgram().then((data) => {
+    const args = data.split(' ')
 
-  p.stdout.on('data', function (data) {
-    ret += data
-  })
-
-  p.stderr.on('data', function (data) {
-    err = new Error('Windows Script Error: ' + data)
-  })
-
-  p.on('close', function () {
-    if (err) return done(err)
-
-    return done(null, ret.trim())
+    return { volume: parseInt(args[0], 10), isMuted: Boolean(parseInt(args[1], 10)) }
   })
 }
 
-const getVolumeInfo = function (done) {
-  done = done || function () {}
-
-  runProgram('', function (err, strArgs) {
-    if (err) return done(err)
-
-    const args = strArgs.split(' ')
-    const info = {
-      volume: parseInt(args[0]),
-      isMuted: !!parseInt(args[1])
-    }
-
-    return done(null, info)
-  })
+exports.getVolume = function () {
+  return getVolumeInfo().then(info => info.volume)
 }
 
-module.exports.getVolume = function (done) {
-  done = done || function () {}
-
-  getVolumeInfo(function (err, info) {
-    if (err) return done(err)
-
-    return done(null, info.volume)
-  })
+exports.setVolume = function (val) {
+  return runProgram(String(val)).then(() => undefined)
 }
 
-module.exports.setVolume = function (val, done) {
-  val = val || 0
-  done = done || function () {}
-
-  runProgram(val, function (err) {
-    if (err) return done(err)
-
-    return done(null)
-  })
+exports.getMuted = function () {
+  return getVolumeInfo().then(info => info.isMuted)
 }
 
-module.exports.getMuted = function (done) {
-  done = done || function () {}
-
-  getVolumeInfo(function (err, info) {
-    if (err) return done(err)
-
-    return done(null, info.isMuted)
-  })
-}
-
-module.exports.setMuted = function (val, done) {
-  val = val ? 'mute' : 'unmute'
-  done = done || function () {}
-
-  runProgram(val, function (err) {
-    if (err) return done(err)
-
-    return done(null)
-  })
+exports.setMuted = function (val) {
+  return runProgram(val ? 'mute' : 'unmute').then(() => undefined)
 }

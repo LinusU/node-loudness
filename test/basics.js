@@ -2,63 +2,36 @@
 
 const loudness = require('../')
 
-const async = require('async')
 const assert = require('assert')
 
-describe('loudness', function () {
+describe('loudness', () => {
   let systemVolume, isMuted
 
-  before(function (done) {
-    async.parallel([
-      function (cb) {
-        loudness.getVolume(function (err, vol) {
-          if (err) { return cb(err) }
-
-          systemVolume = vol
-          cb(null)
-        })
-      },
-      function (cb) {
-        loudness.getMuted(function (err, mute) {
-          if (err) { return cb(err) }
-
-          isMuted = mute
-          cb(null)
-        })
-      }
-    ], done)
+  before(() => {
+    return Promise.all([
+      loudness.getVolume().then(v => { systemVolume = v }),
+      loudness.getMuted().then(m => { isMuted = m })
+    ])
   })
 
-  after(function (done) {
-    async.parallel([
-      loudness.setVolume.bind(loudness, systemVolume),
-      loudness.setMuted.bind(loudness, isMuted)
-    ], done)
+  after(() => {
+    return Promise.all([
+      loudness.setVolume(systemVolume),
+      loudness.setMuted(isMuted)
+    ])
   })
 
-  it('should set and get the volume', function (done) {
-    loudness.setVolume(15, function (err) {
-      assert.ifError(err)
-
-      loudness.getVolume(function (err, vol) {
-        assert.ifError(err)
-        assert.strictEqual(vol, 15)
-
-        done()
-      })
-    })
+  it('should set and get the volume', () => {
+    return Promise.resolve()
+      .then(() => loudness.setVolume(15))
+      .then(() => loudness.getVolume())
+      .then(vol => assert.strictEqual(vol, 15))
   })
 
-  it('should set and get the mute state', function (done) {
-    loudness.setMuted(true, function (err) {
-      assert.ifError(err)
-
-      loudness.getMuted(function (err, mute) {
-        assert.ifError(err)
-        assert.strictEqual(mute, true)
-
-        done()
-      })
-    })
+  it('should set and get the mute state', () => {
+    return Promise.resolve()
+      .then(() => loudness.setMuted(true))
+      .then(() => loudness.getMuted())
+      .then(mute => assert.strictEqual(mute, true))
   })
 })

@@ -1,104 +1,56 @@
-const { spawn } = require('child_process')
+const execa = require('execa')
 
-const amixer = function (args, cb) {
-  let ret = ''
-  let err = null
-  const p = spawn('amixer', args)
-
-  p.stdout.on('data', function (data) {
-    ret += data
-  })
-
-  p.stderr.on('data', function (data) {
-    err = new Error('Alsa Mixer Error: ' + data)
-  })
-
-  p.on('close', function () {
-    cb(err, ret.trim())
-  })
+function amixer (...args) {
+  return execa.stdout('amixer', args, { preferLocal: false })
 }
 
-const reDefaultDevice = /Simple mixer control '([a-z0-9 -]+)',[0-9]+/i
 let defaultDeviceCache = null
-const defaultDevice = function (cb) {
-  if (defaultDeviceCache === null) {
-    amixer([], function (err, data) {
-      if (err) {
-        cb(err)
-      } else {
-        let res = reDefaultDevice.exec(data)
-        if (res === null) {
-          cb(new Error('Alsa Mixer Error: failed to parse output'))
-        } else {
-          defaultDeviceCache = res[1]
-          cb(null, defaultDeviceCache)
-        }
-      }
-    })
-  } else {
-    cb(null, defaultDeviceCache)
+const reDefaultDevice = /Simple mixer control '([a-z0-9 -]+)',[0-9]+/i
+
+function parseDefaultDevice (data) {
+  const result = reDefaultDevice.exec(data)
+
+  if (result === null) {
+    throw new Error('Alsa Mixer Error: failed to parse output')
   }
+
+  return result[1]
+}
+
+function getDefaultDevice () {
+  if (defaultDeviceCache) return Promise.resolve(defaultDeviceCache)
+
+  return amixer().then(data => (defaultDeviceCache = parseDefaultDevice(data)))
 }
 
 const reInfo = /[a-z][a-z ]*: Playback [0-9-]+ \[([0-9]+)%\] (?:[[0-9.-]+dB\] )?\[(on|off)\]/i
-const getInfo = function (cb) {
-  defaultDevice(function (err, dev) {
-    if (err) {
-      cb(err)
-    } else {
-      amixer(['get', dev], function (err, data) {
-        if (err) {
-          cb(err)
-        } else {
-          let res = reInfo.exec(data)
-          if (res === null) {
-            cb(new Error('Alsa Mixer Error: failed to parse output'))
-          } else {
-            cb(null, {
-              volume: parseInt(res[1], 10),
-              muted: (res[2] === 'off')
-            })
-          }
-        }
-      })
-    }
-  })
+
+function parseInfo (data) {
+  const result = reInfo.exec(data)
+
+  if (result === null) {
+    throw new Error('Alsa Mixer Error: failed to parse output')
+  }
+
+  return { volume: parseInt(result[1], 10), muted: (result[2] === 'off') }
 }
 
-module.exports.getVolume = function (cb) {
-  getInfo(function (err, obj) {
-    if (err) {
-      cb(err)
-    } else {
-      cb(null, obj.volume)
-    }
-  })
+function getInfo () {
+  return getDefaultDevice().then(dev => amixer('get', dev)).then(data => parseInfo(data))
 }
 
-module.exports.setVolume = function (val, cb) {
-  defaultDevice(function (err, dev) {
-    if (err) {
-      cb(err)
-    } else {
-      amixer(['set', dev, val + '%'], function (err) {
-        cb(err)
-      })
-    }
-  })
+exports.getVolume = function () {
+  return getInfo().then(info => info.volume)
+}
+
+module.exports.setVolume = function (val) {
+  return getDefaultDevice().then(dev => amixer('set', dev, val + '%')).then(() => undefined)
 }
 
 module.exports.getMuted = function (cb) {
-  getInfo(function (err, obj) {
-    if (err) {
-      cb(err)
-    } else {
-      cb(null, obj.muted)
-    }
-  })
+  return getInfo().then(info => info.muted)
 }
 
 module.exports.setMuted = function (val, cb) {
-  amixer(['set', 'PCM', (val ? 'mute' : 'unmute')], function (err) {
-    cb(err)
-  })
+  return amixer('set', 'PCM', (val ? 'mute' : 'unmute')).then(() => undefined)
 }
