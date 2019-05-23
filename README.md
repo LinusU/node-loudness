@@ -21,7 +21,7 @@ loudness.setMuted(false).then(() => {
 	// Done
 }).catch(err => console.log('oops, there was an error', err))
 
-loudness.getMuted(mute => {
+loudness.getMuted().then(mute => {
     // mute = false
 }).catch(err => console.log('oops, there was an error', err))
 ```
