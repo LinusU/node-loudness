@@ -39,7 +39,7 @@ function getInfo () {
   return getDefaultDevice().then(dev => amixer('get', dev)).then(data => parseInfo(data))
 }
 
-exports.getVolume = function () {
+module.exports.getVolume = function () {
   return getInfo().then(info => info.volume)
 }
 
@@ -52,5 +52,5 @@ module.exports.getMuted = function (cb) {
 }
 
 module.exports.setMuted = function (val, cb) {
-  return amixer('set', 'PCM', (val ? 'mute' : 'unmute')).then(() => undefined)
+  return getDefaultDevice().then(dev => amixer('set', dev, (val ? 'mute' : 'unmute'))).then(() => undefined)
 }
