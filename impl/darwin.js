@@ -1,7 +1,7 @@
 const execa = require('execa')
 
 function osascript (cmd) {
-  return execa.stdout('osascript', ['-e', cmd], { preferLocal: false })
+  return execa.sync('osascript', ['-e', cmd], { preferLocal: false }).stdout
 }
 
 exports.getVolume = function () {
