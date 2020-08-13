@@ -52,5 +52,5 @@ exports.getMuted = async function getMuted () {
 }
 
 exports.setMuted = async function setMuted (val) {
-  await amixer('set', 'PCM', val ? 'mute' : 'unmute')
+  await amixer('set', await getDefaultDevice(), val ? 'mute' : 'unmute')
 }
