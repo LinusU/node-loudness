@@ -9,21 +9,15 @@ The library currently has support for four simple async functions. The volume is
 ```javascript
 const loudness = require('loudness')
 
-loudness.setVolume(45, (err) => {
-    // Done
-})
+await loudness.setVolume(45)
 
-loudness.getVolume((err, vol) => {
-    // vol = 45
-})
+const vol = await loudness.getVolume()
+// vol = 45
 
-loudness.setMuted(false, (err) => {
-    // Done
-})
+await loudness.setMuted(false)
 
-loudness.getMuted((err, mute) => {
-    // mute = false
-})
+const mute = await loudness.getMuted()
+// mute = false
 ```
 
 ## OS Support
