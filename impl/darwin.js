@@ -1,21 +1,21 @@
 const execa = require('execa')
 
-function osascript (cmd) {
-  return execa.stdout('osascript', ['-e', cmd], { preferLocal: false })
+async function osascript (cmd) {
+  return (await execa('osascript', ['-e', cmd])).stdout
 }
 
-exports.getVolume = function () {
-  return osascript('output volume of (get volume settings)').then(vol => parseInt(vol, 10))
+exports.getVolume = async function getVolume () {
+  return parseInt(await osascript('output volume of (get volume settings)'), 10)
 }
 
-exports.setVolume = function (val) {
-  return osascript('set volume output volume ' + val).then(() => undefined)
+exports.setVolume = async function setVolume (val) {
+  await osascript('set volume output volume ' + val)
 }
 
-exports.getMuted = function () {
-  return osascript('output muted of (get volume settings)').then(mute => (mute === 'true'))
+exports.getMuted = async function getMuted () {
+  return (await osascript('output muted of (get volume settings)')) === 'true'
 }
 
-exports.setMuted = function (val) {
-  return osascript('set volume ' + (val ? 'with' : 'without') + ' output muted').then(() => undefined)
+exports.setMuted = async function setMuted (val) {
+  await osascript('set volume ' + (val ? 'with' : 'without') + ' output muted')
 }

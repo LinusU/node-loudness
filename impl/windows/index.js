@@ -3,30 +3,29 @@ const path = require('path')
 
 const executablePath = path.join(__dirname, 'adjust_get_current_system_volume_vista_plus.exe')
 
-function runProgram (...args) {
-  return execa.stdout(executablePath, args)
+async function runProgram (...args) {
+  return (await execa(executablePath, args)).stdout
 }
 
-function getVolumeInfo () {
-  return runProgram().then((data) => {
-    const args = data.split(' ')
+async function getVolumeInfo () {
+  const data = await runProgram()
+  const args = data.split(' ')
 
-    return { volume: parseInt(args[0], 10), isMuted: Boolean(parseInt(args[1], 10)) }
-  })
+  return { volume: parseInt(args[0], 10), muted: Boolean(parseInt(args[1], 10)) }
 }
 
-exports.getVolume = function () {
-  return getVolumeInfo().then(info => info.volume)
+exports.getVolume = async function getVolume () {
+  return (await getVolumeInfo()).volume
 }
 
-exports.setVolume = function (val) {
-  return runProgram(String(val)).then(() => undefined)
+exports.setVolume = async function setVolume (val) {
+  await runProgram(String(val))
 }
 
-exports.getMuted = function () {
-  return getVolumeInfo().then(info => info.isMuted)
+exports.getMuted = async function getMuted () {
+  return (await getVolumeInfo()).muted
 }
 
-exports.setMuted = function (val) {
-  return runProgram(val ? 'mute' : 'unmute').then(() => undefined)
+exports.setMuted = async function setMuted (val) {
+  await runProgram(val ? 'mute' : 'unmute')
 }

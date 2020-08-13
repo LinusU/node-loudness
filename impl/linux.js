@@ -1,7 +1,7 @@
 const execa = require('execa')
 
-function amixer (...args) {
-  return execa.stdout('amixer', args, { preferLocal: false })
+async function amixer (...args) {
+  return (await execa('amixer', args)).stdout
 }
 
 let defaultDeviceCache = null
@@ -17,10 +17,10 @@ function parseDefaultDevice (data) {
   return result[1]
 }
 
-function getDefaultDevice () {
-  if (defaultDeviceCache) return Promise.resolve(defaultDeviceCache)
+async function getDefaultDevice () {
+  if (defaultDeviceCache) return defaultDeviceCache
 
-  return amixer().then(data => (defaultDeviceCache = parseDefaultDevice(data)))
+  return (defaultDeviceCache = parseDefaultDevice(await amixer()))
 }
 
 const reInfo = /[a-z][a-z ]*: Playback [0-9-]+ \[([0-9]+)%\] (?:[[0-9.-]+dB\] )?\[(on|off)\]/i
@@ -35,22 +35,22 @@ function parseInfo (data) {
   return { volume: parseInt(result[1], 10), muted: (result[2] === 'off') }
 }
 
-function getInfo () {
-  return getDefaultDevice().then(dev => amixer('get', dev)).then(data => parseInfo(data))
+async function getInfo () {
+  return parseInfo(await amixer('get', await getDefaultDevice()))
 }
 
-exports.getVolume = function () {
-  return getInfo().then(info => info.volume)
+exports.getVolume = async function getVolume () {
+  return (await getInfo()).volume
 }
 
-module.exports.setVolume = function (val) {
-  return getDefaultDevice().then(dev => amixer('set', dev, val + '%')).then(() => undefined)
+exports.setVolume = async function setVolume (val) {
+  await amixer('set', await getDefaultDevice(), val + '%')
 }
 
-module.exports.getMuted = function (cb) {
-  return getInfo().then(info => info.muted)
+exports.getMuted = async function getMuted () {
+  return (await getInfo()).muted
 }
 
-module.exports.setMuted = function (val, cb) {
-  return amixer('set', 'PCM', (val ? 'mute' : 'unmute')).then(() => undefined)
+exports.setMuted = async function setMuted (val) {
+  await amixer('set', 'PCM', val ? 'mute' : 'unmute')
 }
