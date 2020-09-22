@@ -35,22 +35,22 @@ function parseInfo (data) {
   return { volume: parseInt(result[1], 10), muted: (result[2] === 'off') }
 }
 
-async function getInfo () {
-  return parseInfo(await amixer('get', await getDefaultDevice()))
+async function getInfo (device) {
+  return parseInfo(await amixer('get', !!device ? device : await getDefaultDevice()))
 }
 
-exports.getVolume = async function getVolume () {
-  return (await getInfo()).volume
+exports.getVolume = async function getVolume (device) {
+  return (await getInfo(device)).volume
 }
 
-exports.setVolume = async function setVolume (val) {
-  await amixer('set', await getDefaultDevice(), val + '%')
+exports.setVolume = async function setVolume (val, device) {
+  await amixer('set', !!device ? device : await getDefaultDevice(), val + '%')
 }
 
-exports.getMuted = async function getMuted () {
-  return (await getInfo()).muted
+exports.getMuted = async function getMuted (device) {
+  return (await getInfo(device)).muted
 }
 
-exports.setMuted = async function setMuted (val) {
-  await amixer('set', await getDefaultDevice(), val ? 'mute' : 'unmute')
+exports.setMuted = async function setMuted (val, device) {
+  await amixer('set', !!device ? device : await getDefaultDevice(), val ? 'mute' : 'unmute')
 }
