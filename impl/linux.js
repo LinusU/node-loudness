@@ -1,6 +1,7 @@
 const execa = require('execa')
 
 async function amixer (...args) {
+	console.log(args)
   return (await execa('amixer', args)).stdout
 }
 
@@ -46,13 +47,15 @@ function parseInfo (data) {
 }
 
 async function getInfo (device, card) {
-  return parseInfo(await amixer.apply(null, buildArgs('get', device, card)))
+	var a = buildArgs('get', device, card)
+	console.log(a)
+	console.log(await amixer.apply(null, a))
+  return parseInfo(await amixer.apply(null, a))
 }
 
-async function getVolume(device, card) {
+exports.getVolume = async function getVolume(device, card) {
   return (await getInfo(device, card)).volume
 }
-exports.getVolume = getVolume;
 
 exports.setVolume = async function setVolume (val, device, card) {
   var args = buildArgs('set',device, card)
