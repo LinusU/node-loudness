@@ -49,9 +49,10 @@ async function getInfo (device, card) {
   return parseInfo(await amixer.apply(null, buildArgs('get', device, card)))
 }
 
-exports.getVolume = async function getVolume (device, card) {
+async function getVolume(device, card) {
   return (await getInfo(device, card)).volume
 }
+exports.getVolume = getVolume;
 
 exports.setVolume = async function setVolume (val, device, card) {
   var args = buildArgs('set',device, card)
