@@ -16,16 +16,16 @@ switch (os.type()) {
 }
 
 module.exports = {
-  setVolume (volume) {
-    return impl.setVolume(volume)
+  setVolume (volume, d, c) {
+    return impl.setVolume(volume, d, c)
   },
-  getVolume () {
-    return impl.getVolume()
+  getVolume (d, c) {
+    return impl.getVolume(d, c)
   },
-  setMuted (muted) {
-    return impl.setMuted(muted)
+  setMuted (muted, d, c) {
+    return impl.setMuted(muted, d, c)
   },
-  getMuted () {
-    return impl.getMuted()
+  getMuted (d, c) {
+    return impl.getMuted(d, c)
   }
 }
