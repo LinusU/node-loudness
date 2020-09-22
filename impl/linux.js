@@ -1,7 +1,6 @@
 const execa = require('execa')
 
 async function amixer (...args) {
-	console.log(args)
   return (await execa('amixer', args)).stdout
 }
 
@@ -47,10 +46,7 @@ function parseInfo (data) {
 }
 
 async function getInfo (device, card) {
-	var a = buildArgs('get', device, card)
-	console.log(a)
-	console.log(await amixer.apply(null, a))
-  return parseInfo(await amixer.apply(null, a))
+  return parseInfo(await amixer.apply(null, await buildArgs('get', device, card)))
 }
 
 exports.getVolume = async function getVolume(device, card) {
@@ -58,7 +54,7 @@ exports.getVolume = async function getVolume(device, card) {
 }
 
 exports.setVolume = async function setVolume (val, device, card) {
-  var args = buildArgs('set',device, card)
+  var args = await buildArgs('set',device, card)
   args.push(val + '%')
   await amixer.apply(null, args)
 }
@@ -68,7 +64,7 @@ exports.getMuted = async function getMuted (device, card) {
 }
 
 exports.setMuted = async function setMuted (val, device, card) {
-  var args = buildArgs('set',device, card)
+  var args = await buildArgs('set',device, card)
   args.push(val ? 'mute' : 'unmute')
   await amixer.apply(null, args)
 }
