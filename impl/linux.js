@@ -36,6 +36,7 @@ function parseInfo (data) {
 }
 
 async function getInfo (device) {
+	console.log('get', !!device ? device : await getDefaultDevice())
   return parseInfo(await amixer('get', !!device ? device : await getDefaultDevice()))
 }
 
