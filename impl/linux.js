@@ -25,6 +25,16 @@ async function getDefaultDevice () {
 
 const reInfo = /[a-z][a-z ]*: Playback [0-9-]+ \[([0-9]+)%\] (?:[[0-9.-]+dB\] )?\[(on|off)\]/i
 
+async function buildArgs(cmd, device, card){
+	var res = [cmd]
+	res.push(!!device ? device : await getDefaultDevice())
+	if(card){
+		res.push('-c')
+		res.push(card)
+	}
+	return res
+}
+
 function parseInfo (data) {
   const result = reInfo.exec(data)
 
@@ -35,22 +45,26 @@ function parseInfo (data) {
   return { volume: parseInt(result[1], 10), muted: (result[2] === 'off') }
 }
 
-async function getInfo () {
-  return parseInfo(await amixer('get', await getDefaultDevice()))
+async function getInfo (device, card) {
+  return parseInfo(await amixer.apply(null, await buildArgs('get', device, card)))
 }
 
-exports.getVolume = async function getVolume () {
-  return (await getInfo()).volume
+exports.getVolume = async function getVolume(device, card) {
+  return (await getInfo(device, card)).volume
 }
 
-exports.setVolume = async function setVolume (val) {
-  await amixer('set', await getDefaultDevice(), val + '%')
+exports.setVolume = async function setVolume (val, device, card) {
+  var args = await buildArgs('set',device, card)
+  args.push(val + '%')
+  await amixer.apply(null, args)
 }
 
-exports.getMuted = async function getMuted () {
-  return (await getInfo()).muted
+exports.getMuted = async function getMuted (device, card) {
+  return (await getInfo(device, card)).muted
 }
 
-exports.setMuted = async function setMuted (val) {
-  await amixer('set', await getDefaultDevice(), val ? 'mute' : 'unmute')
+exports.setMuted = async function setMuted (val, device, card) {
+  var args = await buildArgs('set',device, card)
+  args.push(val ? 'mute' : 'unmute')
+  await amixer.apply(null, args)
 }
