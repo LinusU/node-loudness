@@ -25,7 +25,7 @@ async function getDefaultDevice () {
 
 const reInfo = /[a-z][a-z ]*: Playback [0-9-]+ \[([0-9]+)%\] (?:[[0-9.-]+dB\] )?\[(on|off)\]/i
 
-function buildArgs(cmd, device, card){
+async function buildArgs(cmd, device, card){
 	var res = [cmd]
 	res.push(!!device ? device : await getDefaultDevice())
 	if(card){
@@ -46,7 +46,7 @@ function parseInfo (data) {
 }
 
 async function getInfo (device, card) {
-  return parseInfo(await amixer.apply(null, buildArgs('get', device, card))
+  return parseInfo(await amixer.apply(null, buildArgs('get', device, card)))
 }
 
 exports.getVolume = async function getVolume (device, card) {
