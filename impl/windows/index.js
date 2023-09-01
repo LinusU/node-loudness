@@ -1,10 +1,12 @@
-const execa = require('execa')
+const childProcess = require('child_process')
 const path = require('path')
+const util = require('util')
 
+const execFile = util.promisify(childProcess.execFile)
 const executablePath = path.join(__dirname, 'adjust_get_current_system_volume_vista_plus.exe')
 
 async function runProgram (...args) {
-  return (await execa(executablePath, args)).stdout
+  return (await execFile(executablePath, args)).stdout
 }
 
 async function getVolumeInfo () {
